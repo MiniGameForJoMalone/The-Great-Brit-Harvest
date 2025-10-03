@@ -1,40 +1,120 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-    <title>Unity WebGL Player | Catch the Brit Collection!</title>
-  </head>
-  <body style="text-align: center; padding: 0; border: 0; margin: 0;">
-    <canvas id="unity-canvas" width=720 height=1280 style="width: 720px; height: 1280px; background: #231F20"></canvas>
-    <script src="Build/Builds.loader.js"></script>
-    <script>
-      if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
-        // Mobile device style: fill the whole browser client area with the game canvas:
-        var meta = document.createElement('meta');
-        meta.name = 'viewport';
-        meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
-        document.getElementsByTagName('head')[0].appendChild(meta);
 
-        var canvas = document.querySelector("#unity-canvas");
-        canvas.style.width = "100%";
-        canvas.style.height = "100%";
-        canvas.style.position = "fixed";
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>Unity WebGL Player | Catch the Brit Collection!</title>
+  <style>
+    body {
+      text-align: center;
+      padding: 0;
+      border: 0;
+      margin: 0;
+      background: #231F20;
+      /* fallback while loading */
+    }
 
-        document.body.style.textAlign = "left";
-      }
+    /* Loading screen styling */
+    #loading-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #f8f6f2;
+      /* soft ivory */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      color: #231f20;
+      z-index: 9999;
+    }
 
-      createUnityInstance(document.querySelector("#unity-canvas"), {
-        dataUrl: "Build/Builds.data.unityweb",
-        frameworkUrl: "Build/Builds.framework.js.unityweb",
-        codeUrl: "Build/Builds.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "JoMaloneLondon",
-        productName: "Catch the Brit Collection!",
-        productVersion: "0.1",
-        // matchWebGLToCanvasSize: false, // Uncomment this to separately control WebGL canvas render size and DOM element size.
-        // devicePixelRatio: 1, // Uncomment this to override low DPI rendering on high DPI displays.
-      });
-    </script>
-  </body>
+    #loading-screen img {
+      width: 200px;
+      margin-bottom: 30px;
+    }
+
+    #progress-text {
+      font-size: 16px;
+      margin-bottom: 15px;
+    }
+
+    #progress-container {
+      width: 60%;
+      background: #ddd;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+
+    #progress-bar {
+      width: 0%;
+      height: 8px;
+      background: #231f20;
+      transition: width 0.2s ease;
+    }
+
+    canvas {
+      background: #231F20;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Loading Screen -->
+  <div id="loading-screen">
+    <img src="logo.png" alt="Jo Malone London" />
+    <div style="font-size: 22px; margin-bottom: 15px;">Catch the Brit Collection</div>
+    <div id="progress-text">Loading... 0%</div>
+    <div id="progress-container">
+      <div id="progress-bar"></div>
+    </div>
+  </div>
+
+  <!-- Unity Canvas -->
+  <canvas id="unity-canvas" width=720 height=1280 style="width: 720px; height: 1280px;"></canvas>
+  <script src="Build/Builds.loader.js"></script>
+  <script>
+    if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+      // Mobile device style: fill the whole browser client area with the game canvas:
+      var meta = document.createElement('meta');
+      meta.name = 'viewport';
+      meta.content = 'width=device-width, height=device-height, initial-scale=1.0, user-scalable=no, shrink-to-fit=yes';
+      document.getElementsByTagName('head')[0].appendChild(meta);
+
+      var canvas = document.querySelector("#unity-canvas");
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.position = "fixed";
+
+      document.body.style.textAlign = "left";
+    }
+
+    createUnityInstance(document.querySelector("#unity-canvas"), {
+      dataUrl: "Build/Builds.data.unityweb",
+      frameworkUrl: "Build/Builds.framework.js.unityweb",
+      codeUrl: "Build/Builds.wasm.unityweb",
+      streamingAssetsUrl: "StreamingAssets",
+      companyName: "JoMaloneLondon",
+      productName: "Catch the Brit Collection!",
+      productVersion: "0.1",
+    }, (progress) => {
+      let bar = document.getElementById("progress-bar");
+      let text = document.getElementById("progress-text");
+      bar.style.width = (progress * 100) + "%";
+      text.innerHTML = "Loading... " + Math.round(progress * 100) + "%";
+    }).then((unityInstance) => {
+      // Fade out loading screen when done
+      let loadingScreen = document.getElementById("loading-screen");
+      loadingScreen.style.transition = "opacity 0.5s ease";
+      loadingScreen.style.opacity = "0";
+      setTimeout(() => { loadingScreen.style.display = "none"; }, 500);
+    });
+  </script>
+</body>
+
 </html>
